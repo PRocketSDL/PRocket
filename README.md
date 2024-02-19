@@ -10,7 +10,7 @@ Fiecare pagina(meniu, programul principal, setari, etc.) va avea un header file,
 
 ## *Cum ne vom imparti sarcinile?*
 
-Prin to-do listul din github (pagina "Projects", cred). Eu voi scrie prima data ce trebuie sa facem, dar poti pune si tu daca vrei sa facem cv.
+Prin to-do listul din github (pagina "Issues"). Eu voi scrie prima data ce trebuie sa facem, dar poti pune si tu daca vrei sa facem cv.
 
 Fiecare va face minim 2-3 task-uri pe saptamana.
 
