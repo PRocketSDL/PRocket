@@ -14,5 +14,7 @@ Prin to-do listul din github (pagina "Issues"). Eu voi scrie prima data ce trebu
 
 Fiecare va face minim 2-3 task-uri pe saptamana.
 
+## *Compilarea programului*
 
+sudo g++ -lSDL2 "fisierul principal" -o procket
 
