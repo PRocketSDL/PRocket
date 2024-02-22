@@ -1,6 +1,11 @@
 #include "menu.h"
 
+
+//Default menu option (Open existing)
 int opt=1;
+
+//#define debug
+//Maybe we are gonna need this :thinking:
 
 void CreateWindow() {
     Window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
@@ -36,16 +41,45 @@ bool IsPollingEvent() {
 	
         switch (WindowEvent.type) {
             case SDL_QUIT:
-		 return false;
+		    return false;
 	    case SDL_KEYDOWN:
-		opt++;
-		opt = ( opt>4 ) ? 1 : opt;
-		WindowEvent.type= -1;
-		break;
-	   default:
-		break; 
+            if(WindowEvent.key.keysym.sym == SDLK_UP)
+            {
+                opt--;
+                opt = ( opt<1 ) ? 1 : opt;
+		        WindowEvent.type= -1;
+            }
+                
+            if(WindowEvent.key.keysym.sym == SDLK_DOWN)
+            {
+               opt++;
+               opt = ( opt>4 ) ? 4 : opt;
+		       WindowEvent.type= -1;
+            }
+            //Perfect!
+
+            if(opt == 1 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                std::cout << "[Menu Event] Open existing\n";
+                //Why the SDLK_RETURN is actually the enter key WTFF
+
+            if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                std::cout << "[Menu Event] Create new map\n";
+
+            if(opt == 3 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                std::cout << "[Menu Event] Settings\n";
+
+            if(opt == 4 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+            {
+                std::cout << "[Menu Event] Exit\n";
+                exit(0);
+            }
+            //Every std out functions was added for debuging
+            
+		    break;
+	    default:
+		    break; 
         }
-	WindowEvent.type = -1;
+	    WindowEvent.type = -1;
     }
     return true;
 }
@@ -55,12 +89,14 @@ void RenderText() {
     SDL_RenderClear(Renderer); 
 
     
-    SDL_RenderCopy(Renderer, title, NULL, &rtitle); 
-   std::cout<<WindowEvent.type<<std::endl;
-   if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, open, NULL, &ropen);    
-   if(opt==2)  SDL_RenderCopy(Renderer, hcreate, NULL, &rcreate);else SDL_RenderCopy(Renderer, create, NULL, &rcreate);
-   if(opt==3)  SDL_RenderCopy(Renderer, hsett, NULL, &rsett);else SDL_RenderCopy(Renderer, sett, NULL, &rsett);
-   if(opt==4)  SDL_RenderCopy(Renderer, hexitbtn, NULL, &rexitbtn);else SDL_RenderCopy(Renderer, exitbtn, NULL, &rexitbtn);
+    SDL_RenderCopy(Renderer, title, NULL, &rtitle);
+    #ifdef debug 
+    std::cout<< "Render copy: "<<WindowEvent.type<<std::endl; //Too much spam lmao
+    #endif
+    if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, open, NULL, &ropen);    
+    if(opt==2)  SDL_RenderCopy(Renderer, hcreate, NULL, &rcreate);else SDL_RenderCopy(Renderer, create, NULL, &rcreate);
+    if(opt==3)  SDL_RenderCopy(Renderer, hsett, NULL, &rsett);else SDL_RenderCopy(Renderer, sett, NULL, &rsett);
+    if(opt==4)  SDL_RenderCopy(Renderer, hexitbtn, NULL, &rexitbtn);else SDL_RenderCopy(Renderer, exitbtn, NULL, &rexitbtn);
    
     SDL_RenderPresent(Renderer); // Render everything that's on the queue.
     SDL_Delay(20); // Delay to prevent CPU overhead
