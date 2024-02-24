@@ -1,20 +1,37 @@
 #include "menu.h"
 
 
-//Default menu option (Open existing)
+//Default menu option (Open)
 int opt=1;
 
 //#define debug
 //Maybe we are gonna need this :thinking:
 
 void CreateWindow() {
-    Window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+    Window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
     if (!Window)
         std::cout << "There was a problem creating the window.";
     Renderer = SDL_CreateRenderer(Window, -1, 0);
     if (!Renderer)
         std::cout << "There was a problem creating the renderer.";
 }
+
+//Print the width and height of the window on resize event
+static int WindowResiezeEv(void* data, SDL_Event* event) 
+{
+    if (event -> type == SDL_WINDOWEVENT && event -> window.event == SDL_WINDOWEVENT_RESIZED)
+    {
+        Window = SDL_GetWindowFromID(event -> window.windowID);
+        if (Window == (SDL_Window*)data)
+        {
+            SDL_GetWindowSize(Window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
+            std::cout << "[Window Event] Resize " << "W= " << WINDOW_WIDTH << " H= " << WINDOW_HEIGHT << "\n";
+        }
+    }
+  return 0;
+}
+
+
 
 void CreateText(const char* message, int x, int y, const char* font_name,  int font_size, SDL_Texture* &TextTexture, SDL_Rect &TextRect,    Uint8 R=255, Uint8 G=255, Uint8 B=255, Uint8 A=255) {
     TTF_Init();
@@ -127,6 +144,9 @@ int main() {
     CreateText("Create new map", WINDOW_WIDTH/3, WINDOW_HEIGHT/3+20, "menu_opt.ttf", 40, hcreate, rcreate, 255, 0, 0, 255);
     CreateText("Settings", WINDOW_WIDTH/3, WINDOW_HEIGHT/3+40, "menu_opt.ttf", 40, hsett, rsett, 255, 0, 0, 255);
     CreateText("Exit", WINDOW_WIDTH/3, WINDOW_HEIGHT/3+60, "menu_opt.ttf", 40, hexitbtn, rexitbtn, 255, 0, 0, 255);
+
+    SDL_AddEventWatch(WindowResiezeEv, Window);
+
  
     while(IsPollingEvent()){
     RenderText();
