@@ -4,9 +4,11 @@
 #include <SDL2/SDL_ttf.h>
  
 const char* WINDOW_TITLE = "PRocket";
-const char* FONT_NAME = "menu_font.ttf";
+const char* FONT_NAME = "assets/fonts/menu_font.ttf";
+const char* MAIN_TITLE_FONT = "assets/fonts/menu_font.ttf";
+const char* OPT_MENU_FONT = "assets/fonts/menu_opt.ttf";
 const int FONT_SIZE = 60;
-int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
+const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
  
 SDL_Window* Window; // Window created by SDL.
 SDL_Renderer* Renderer; // The renderer that shows our textures.
