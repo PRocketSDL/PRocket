@@ -7,7 +7,7 @@ int opt=1;
 
 
 //Char variable to store the file name of the rmap file
-char *open_rmap[1024];
+char open_rmap[1024];
 FILE *f;
 
 //#define debug
@@ -64,8 +64,12 @@ bool IsPollingEvent() {
 
                 //Execute the shell command for returning the open file dialog window
                 f = popen("zenity --file-selection --title='Select rocket map file'", "r");
-                fgets(*open_rmap, 1024, f);
-                std::cout << "File selection: " << open_rmap << "\n";
+                fgets(open_rmap, 1024, f);
+                if(strlen(open_rmap) == 0)
+                    std::cout << "File selection: none\n";
+        
+                else
+                    std::cout << "File selection: " << open_rmap << "\n";
             }
 
             if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
@@ -92,6 +96,7 @@ bool IsPollingEvent() {
             {
                 ClearMainGraphics();
                 RenderMainMenu();
+		std::cout << "[Key Event] Return main menu\n";
             }
             
 		    break;
