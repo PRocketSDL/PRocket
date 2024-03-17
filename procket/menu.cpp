@@ -63,7 +63,7 @@ bool IsPollingEvent() {
                 std::cout << "[Menu Event] Open existing + Open file dialog\n";
 
                 //Execute the shell command for returning the open file dialog window
-                f = popen("zenity --file-selection --title='Select rocket map file'", "r");
+                f = popen("zenity --file-selection --file-filter='*.rmap' --title='Select rocket map file'", "r");
                 fgets(open_rmap, 1024, f);
                 if(strlen(open_rmap) == 0)
                     std::cout << "File selection: none\n";
