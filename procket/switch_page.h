@@ -8,7 +8,7 @@
 #include "textRendering.h"
 
 //All option pages
-#include "map_page.cpp"
+#include "map_page.h"
 #include "settings_page.h"
 
 
