@@ -1,13 +1,16 @@
 #include "menu.h"
 #include "switch_page.h"
+ 
+#include "FD_IO.h"
+
+//#include "rmap_utils.h"
+
+#include <iostream>
 
 //Default menu option (Open)
 int opt=1;
-
-
 //Char variable to store the file name of the rmap file
-char open_rmap[1024];
-FILE *f;
+
 
 //#define debug
 //Maybe we are gonna need this :thinking:
@@ -60,16 +63,15 @@ bool IsPollingEvent() {
             if(opt == 1 && WindowEvent.key.keysym.sym == SDLK_RETURN)
             {
                 std::cout << "[Menu Event] Open existing + Open file dialog\n";
-
-                //Execute the shell command for returning the open file dialog window
-                f = popen("zenity --file-selection --file-filter='*.rmap' --title='Select rocket map file'", "r");
-                fgets(open_rmap, 1024, f);
-                if(strlen(open_rmap) == 0)
-                    std::cout << "File selection: none\n";
-        
-                else
-                    std::cout << "File selection: " << open_rmap << "\n";
+                OpenFileDialog();
+                //SaveFileDialog();
                 
+            }
+
+
+            if(WindowEvent.key.keysym.sym == SDLK_c)
+            {
+                SaveFileDialog();
             }
 
             if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
@@ -102,7 +104,7 @@ bool IsPollingEvent() {
 
 
 
-        case SDL_MOUSEBUTTONDOWN:
+        /*case SDL_MOUSEBUTTONDOWN:
         switch (WindowEvent.button.button)
         {
             case SDL_BUTTON_LEFT:
@@ -115,7 +117,7 @@ bool IsPollingEvent() {
                 SDL_GetMouseState(&msX, &msY);
                 std::cout << "Mouse pos on click: " << "x= " << msX << " y= " << msY << "\n";
                 break;
-        }
+        }*/
     break;
             
 		    break;
