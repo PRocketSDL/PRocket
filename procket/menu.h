@@ -8,7 +8,7 @@ const char* MAIN_TITLE_FONT = "assets/fonts/menu_font.ttf";
 const char* OPT_MENU_FONT = "assets/fonts/menu_opt.ttf";
 const int FONT_SIZE = 60;
 const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
- int msX=0, msY=0; //for mouse inputs
+
 SDL_Window* Window; // Window created by SDL.
 SDL_Renderer* Renderer; // The renderer that shows our textures.
 SDL_Renderer* Renderergray;
