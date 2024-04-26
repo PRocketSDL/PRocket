@@ -1,30 +1,47 @@
+#define DEBUG_FD
+#define DEBUG_RMAP_FILE
+#define DEBUG_MENU
+#define DEBUG_MOUSE_POS
+#define DEBUG_KEY_EVENT
+#define DEBUG_MAP_PAGE
+//#define STUPID_SPAM
+
+
+
+
 #include "menu.h"
 #include "switch_page.h"
- 
 #include "FD_IO.h"
 
-//#include "rmap_utils.h"
-
-#include <iostream>
+#include "ext_deps/ANSI_Utils.h"
 
 //Default menu option (Open)
 int opt=1;
-//Char variable to store the file name of the rmap file
 
 
-//#define debug
-//Maybe we are gonna need this :thinking:
+
+
+
+
 
 void CreateWindow() {
     Window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (!Window)
-        std::cout << "\x1b[38;5;196mFailed to create window!\x1b[0\n";
-    
+    {
+        XtermFG(FG, 196);
+        std::cout << "Failed to create window!\n";
+        CresetAll();
+    }
+
     Renderer = SDL_CreateRenderer(Window, -1, 0);
 
     if (!Renderer)
-        std::cout << "\x1b[38;5;196mFailed to create renderer!\x1b[0\n";
+    {
+        XtermFG(FG, 196);
+        std::cout << "Failed to create renderer!\n";
+        CresetAll();
+    }
 }
 
 
@@ -39,90 +56,92 @@ void ClearMemory() {
 
 bool IsPollingEvent() {
     while(SDL_PollEvent(&WindowEvent)) {
-	
+
         switch (WindowEvent.type) {
             case SDL_QUIT:
-		    return false;
-	    case SDL_KEYDOWN:
-            //simple algorithms for switching menu options
-            if(WindowEvent.key.keysym.sym == SDLK_UP)
+		        return false;
+	        case SDL_KEYDOWN:
+                //simple algorithms for switching menu options
+                if(WindowEvent.key.keysym.sym == SDLK_UP)
+                {
+                    opt--;
+                    opt = ( opt<1 ) ? 1 : opt;
+		            WindowEvent.type= -1;
+                }
+
+                if(WindowEvent.key.keysym.sym == SDLK_DOWN)
+                {
+                    opt++;
+                    opt = ( opt>4 ) ? 4 : opt;
+		            WindowEvent.type= -1;
+                }
+                //Perfect!
+
+                if(opt == 1 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                {
+                    #ifdef DEBUG_MENU
+                        std::cout << "[Menu Event] -> Open existing + Open file dialog\n";
+                    #endif
+                    OpenFileDialog();
+                }
+
+                if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                {
+                    SwitchPage(opt);
+                    #ifdef DEBUG_MENU
+                        std::cout << "[Menu Event] -> Create new map\n";
+                    #endif
+                }
+
+                if(opt == 3 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                {
+                    SwitchPage(opt);
+                    #ifdef DEBUG_MENU
+                        std::cout << "[Menu Event] -> Settings\n";
+                    #endif
+                }
+
+                if(opt == 4 && WindowEvent.key.keysym.sym == SDLK_RETURN)
+                {
+                    #ifdef DEBUG_MENU
+                        std::cout << "[Menu Event] -> Exit\n";
+                    #endif
+                    ClearMemory();
+                    exit(0);
+                }
+
+                //if statement for returning back to the main menu by pressing the left key
+                if(WindowEvent.key.keysym.sym == SDLK_LEFT)
+                {
+                    ClearMainGraphics();
+                    RenderMainMenu();
+                    #ifdef DEBUG_KEY_EVENT
+                        std::cout << "[Key Event] -> Return main menu\n";
+                    #endif
+                }
+
+            case SDL_MOUSEBUTTONDOWN:
+            switch (WindowEvent.button.button)
             {
-                opt--;
-                opt = ( opt<1 ) ? 1 : opt;
-		        WindowEvent.type= -1;
-            }
-                
-            if(WindowEvent.key.keysym.sym == SDLK_DOWN)
-            {
-               opt++;
-               opt = ( opt>4 ) ? 4 : opt;
-		       WindowEvent.type= -1;
-            }
-            //Perfect!
-
-            if(opt == 1 && WindowEvent.key.keysym.sym == SDLK_RETURN)
-            {
-                std::cout << "[Menu Event] Open existing + Open file dialog\n";
-                OpenFileDialog();
-                //SaveFileDialog();
-                
-            }
-
-
-            if(WindowEvent.key.keysym.sym == SDLK_c)
-            {
-                SaveFileDialog();
-            }
-
-            if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
-            {
-                SwitchPage(opt);
-                std::cout << "[Menu Event] Create new map\n";
-            }
-
-            if(opt == 3 && WindowEvent.key.keysym.sym == SDLK_RETURN)
-            {
-                SwitchPage(opt);
-                std::cout << "[Menu Event] Settings\n";
-            }
-
-            if(opt == 4 && WindowEvent.key.keysym.sym == SDLK_RETURN)
-            {
-                std::cout << "[Menu Event] Exit\n";
-                ClearMemory();
-                exit(0);
-            }
-
-            //if statement for returning back to the main menu by pressing the left key
-            if(WindowEvent.key.keysym.sym == SDLK_LEFT)
-            {
-                ClearMainGraphics();
-                RenderMainMenu();
-                std::cout << "[Key Event] Return main menu\n";
-            }
-
-
-
-
-        /*case SDL_MOUSEBUTTONDOWN:
-        switch (WindowEvent.button.button)
-        {
-            case SDL_BUTTON_LEFT:
-                std::cout << "Left click\n";
-                SDL_GetMouseState(&msX, &msY);
-                std::cout << "Mouse pos on click: " << "x= " << msX << " y= " << msY << "\n";
+                case SDL_BUTTON_LEFT:
+                   SDL_GetMouseState(&msX, &msY);
+                    #ifdef DEBUG_MOUSE_POS
+                        std::cout << "Left click\n";
+                        std::cout << "Mouse pos on click: " << "x= " << msX << " y= " << msY << "\n";
+                    #endif
                 break;
-            case SDL_BUTTON_RIGHT:
-                std::cout << "Right Click\n";
-                SDL_GetMouseState(&msX, &msY);
-                std::cout << "Mouse pos on click: " << "x= " << msX << " y= " << msY << "\n";
+                case SDL_BUTTON_RIGHT:
+                    SDL_GetMouseState(&msX, &msY);
+                    #ifdef DEBUG_MOUSE_POS
+                        std::cout << "Right Click\n";
+                        std::cout << "Mouse pos on click: " << "x= " << msX << " y= " << msY << "\n";
+                    #endif
                 break;
-        }*/
-    break;
-            
+            }
+            break;
 		    break;
-	    default:
-		    break; 
+	        default:
+		        break; 
         }
 	    WindowEvent.type = -1;
     }
@@ -133,16 +152,16 @@ void RenderText() {
     SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0); //culoarea background-ului
     SDL_RenderClear(Renderer); 
 
-    
+
     SDL_RenderCopy(Renderer, title, NULL, &rtitle);
-    #ifdef debug 
+    #ifdef STUPID_SPAM
     std::cout<< "Render copy: "<<WindowEvent.type<<std::endl; //Too much spam lmao
     #endif
     if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, open, NULL, &ropen);    
     if(opt==2)  SDL_RenderCopy(Renderer, hcreate, NULL, &rcreate);else SDL_RenderCopy(Renderer, create, NULL, &rcreate);
     if(opt==3)  SDL_RenderCopy(Renderer, hsett, NULL, &rsett);else SDL_RenderCopy(Renderer, sett, NULL, &rsett);
     if(opt==4)  SDL_RenderCopy(Renderer, hexitbtn, NULL, &rexitbtn);else SDL_RenderCopy(Renderer, exitbtn, NULL, &rexitbtn);
-   
+
     SDL_RenderPresent(Renderer); // Render everything that's on the queue.
     SDL_Delay(20); // Delay to prevent CPU overhead
 }
@@ -151,12 +170,16 @@ void RenderText() {
 
 
 int main() {
+
+    #if defined _WIN32 || defined _WIN64
+        SetTerminal();
+    #endif
     CreateWindow();
 
     //The initial state
     RenderMainMenu();
 
- 
+
     while(IsPollingEvent()){
         RenderText();
 	}
