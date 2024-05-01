@@ -16,5 +16,6 @@ Fiecare va face minim 2-3 task-uri pe saptamana.
 
 ## *Compilarea programului*
 
-sudo g++ -lSDL2 -lSDL2_ttf "fisierul principal" -o procket
+sudo g++ -Wall -lSDL2 -lSDL2_ttf "fisierul principal" -std=c++20 -o procket
 
+-std=c++20 pt noua biblioteca de procesare ini
