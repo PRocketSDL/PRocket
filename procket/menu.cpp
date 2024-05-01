@@ -4,6 +4,7 @@
 #define DEBUG_MOUSE_POS
 #define DEBUG_KEY_EVENT
 #define DEBUG_MAP_PAGE
+#define DEBUG_CONFIG
 //#define STUPID_SPAM
 
 
@@ -12,6 +13,8 @@
 #include "menu.h"
 #include "switch_page.h"
 #include "FD_IO.h"
+#include "Rmap_File.h"
+#include "Config_Utils.hpp"
 
 #include "ext_deps/ANSI_Utils.h"
 
@@ -51,6 +54,7 @@ void ClearMemory() {
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
     SDL_Quit();
+    SaveConfig();
     std::cout << "ClearMemory() function completed succcesfully " <<opt<<" "<<WindowEvent.type<<" "<<SDL_QUIT<<" "<<SDL_KEYUP<<" "<<SDL_KEYDOWN<<std::endl;
 }
 
@@ -82,7 +86,7 @@ bool IsPollingEvent() {
                     #ifdef DEBUG_MENU
                         std::cout << "[Menu Event] -> Open existing + Open file dialog\n";
                     #endif
-                    OpenFileDialog();
+                    ReadRMAP();
                 }
 
                 if(opt == 2 && WindowEvent.key.keysym.sym == SDLK_RETURN)
@@ -174,6 +178,8 @@ int main() {
     #if defined _WIN32 || defined _WIN64
         SetTerminal();
     #endif
+    ConfigInit();
+
     CreateWindow();
 
     //The initial state
