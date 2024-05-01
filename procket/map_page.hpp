@@ -11,29 +11,15 @@
 #include "textRendering.h"
 #include "menu.h"
 #include "switch_page.h"
-#include <queue>
+
 
 #define MAX_ELEM 1001
+#define SDL_DELAY 100
 
-//pentru algoritmul lui lee
 bool map[720][1280];
-int n,m, b[720][1280];
-int dx[] = {0, 0, -1, 1};
-int dy[] = {-1, 1, 0, 0};
-const char* dir="SNEV";
-char steps[1001];
-long long int nrsteps;
-int curstep=-1;
-
-
 int posr;
 bool finpon = true;
-bool roadcalc;
 
-int defx = 30;
-int defy = 30;
-int shipx = defx;
-int shipy = defy;
 //Tipuri:
 //1-punct
 //2-planeta statica
@@ -131,97 +117,11 @@ if(ctype == 1 || ctype == 2 || (ctype == 3 && !finpon) || (ctype == 5 && !finpon
   E[nr_elem].x = X/2;
   E[nr_elem].y = Y/2;
 }
-if(ctype !=6){
-  roadcalc = false;
-  curstep = 0;
-}
 }
 
 //MARK: #include "Rmap_File.h"
 #include "Rmap_File.h"
 //DO NOT TOUCH IT!!!
-
-
-void clearb(){
-  for(int i=0;i<720;i++)
-    for(int j=0;j<1280;j++)
-      b[i][j] = 0;
-
-
-}
-bool inmat(int i, int j){
-  return i>=0 && j>=1 && i<=720 && j<=1280;
-}
-/*
-magie!
-d=0 -> jos (Sud)
-d=1 -> sus (Nord) 
-d=2 -> stanga (Vest)
-d=3 -> dreapta (Est)
-*/
-
-void drum(int destx, int desty){
-    nrsteps = 0;  
-    if(shipx == destx && shipy == desty)
-      return ;
-    else{
-      for(int d=0;d<=3;++d){
-        int xnou = destx+dx[d];
-        int ynou = desty+dy[d];
-        if(inmat(xnou, ynou) && b[xnou][ynou] == b[destx][desty]-1){
-          drum(xnou, ynou);
-          steps[nrsteps++] = dir[d];
-          std::cout<<nrsteps<<" ";
-          break;
-        }
-      }
-    }
-    std::cout<<"nrsteps:"<<nrsteps;
-  
-
-}
-bool checkfit(int i, int j){
-      for(int w;w<=10;w++)
-        if(map[i+w][j]) return false;
-      for(int z;z<=20;z++)
-        if(map[i][j+z]) return false;
-  return true;
-}
-void lee(int istart, int jstart){
-
-  SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-  clearb();
-  std::queue <std::pair<int, int>> Q;
-  Q.push(std::make_pair(istart, jstart));
-  b[istart][jstart] = 0;
-  while(!Q.empty()){
-    int x = Q.front().first;
-    int y = Q.front().second;
-    Q.pop();
-    for(int d=0;d<=3;++d){
-      int inou = dx[d]+x;
-      int jnou = dy[d]+y;
-      if(inmat(inou, jnou) &&!map[inou][jnou]&& b[inou][jnou] == 0){
-      
-        b[inou][jnou] = b[x][y]+1;
-        Q.push(std::make_pair(inou, jnou));
-        SDL_RenderDrawPoint(Renderer, inou, jnou);
-      }
-    }
-    
-
-  }
-
-  //for(int i=0;i<720;i++, std::cout<<'\n')
-    //for(int j=0;j<1280;j++)
-    // std::cout<< b[i][j]<<" ";
-    std::cout<<b[rpovif[0].x][rpovif[0].y];
-    drum(rpovif[0].x, rpovif[0].y);
-
-   for(int i=0;i<nrsteps;i++)
-     std::cout<<steps[i]<<" ";
-}
-
 
 bool IsPollingEventM() {
     while(SDL_PollEvent(&WindowEvent)) {
@@ -276,10 +176,6 @@ bool IsPollingEventM() {
                 ClearMainGraphics();
                 RenderMainMenu();
             }
-            if(WindowEvent.key.keysym.sym == SDLK_a){
-              lee(shipx, shipy);
-              roadcalc = true;
-            }
             #ifdef DEBUG_MAP_PAGE
                 std::cout <<'\n'<< "ctype: "<<ctype<<'\n';
             #endif
@@ -288,6 +184,14 @@ bool IsPollingEventM() {
             {
               WriteRMAP();
             }
+
+            if(WindowEvent.key.keysym.sym == SDLK_t)
+            {
+              ReadRMAP();
+            }
+            const Uint8 *numKeys = SDL_GetKeyboardState(NULL);
+            
+            std::cout << "num keys pressed: " << numKeys << "\n";
             if(WindowEvent.key.keysym.sym == SDLK_RETURN && !finpon && posr > 0){
               finpon = true;
               MakeElem(msX, msY);
@@ -305,9 +209,9 @@ bool IsPollingEventM() {
     return true;
 }
 //MARK: SDL Pol Event End
-void point(int x, int y){
-  SDL_RenderDrawPoint(Renderer, x, y);
- if(inmat(x, y)) map[int(x)][int(y)] = true;    
+void point(float x, float y){
+  SDL_RenderDrawPointF(Renderer, x, y);
+  map[int(x)][int(y)] = false;
 }
 
  void line(float x1, float y1, float x2, float y2){
@@ -317,42 +221,83 @@ void point(int x, int y){
              float angle = std::atan2(dy, dx);
              for(float i=0;i<length;i++){
                             SDL_RenderDrawPointF(Renderer, x1+std::cos(angle)*i, y1 + std::sin(angle)*i);
-                            map[int(x1+std::cos(angle)*i)][int(y1+std::sin(angle)*i)] = true;
+                            map[int(y1+std::sin(angle)*i)][int(x1+std::cos(angle)*i)] = false;
              }
 
   };
 
 
 
-void circle(int x, int y, int d){
-    int circle_radius = d/2;
-        for (int t = 0; t < 360; t++)
+void circle(int32_t centreX, int32_t centreY,
+      int32_t diameter, int32_t parts=8){
+
+
+      int32_t x = (diameter/2 - 1);
+      int32_t y = 0;
+      int32_t tx = 1;
+      int32_t ty = 1;
+      int32_t error = (tx - diameter);
+
+
+      while (x >= y)
+      {
+         //  Each of the following renders an octant of the circle
+        if(parts>=1){
+             SDL_RenderDrawPointF(Renderer, centreX+x, centreY-y);
+             map[centreY-y][centreX+x] = false;
+        }
+        if(parts>=2){
+             SDL_RenderDrawPointF(Renderer, centreX+x, centreY+y);
+
+             map[centreY+y][centreX+x] = false;
+        }
+      if(parts>=3){
+             SDL_RenderDrawPointF(Renderer, centreX-x, centreY-y);
+
+             map[centreY-y][centreX-x] = false;
+      }
+       if(parts>=4){
+            SDL_RenderDrawPointF(Renderer, centreX-x, centreY+y);
+             map[centreY+y][centreX-x] = false;
+       }
+       if(parts>=5){
+           SDL_RenderDrawPointF(Renderer, centreX+y, centreY-x);
+             map[centreY-x][centreX+y] = false;
+       }
+       if(parts>=6){
+            SDL_RenderDrawPointF(Renderer, centreX+y, centreY+x);
+             map[centreY+x][centreX+y] = false;
+       }
+       if(parts>=7){
+           SDL_RenderDrawPointF(Renderer, centreX-y,  centreY-x);
+             map[centreY-x][centreX-y] = false;
+       }
+       if(parts>=8){
+           SDL_RenderDrawPointF(Renderer, centreX-y, centreY+x);
+             map[centreY+x][centreX-y] = false;
+       }
+        if (error <= 0)
         {
-            
-            point(x+circle_radius*std::cos(t), y+circle_radius*std::sin(t));
+           ++y;
+           error += ty;
+           ty += 2;
         }
 
+        if (error > 0)
+        {
+          --x;
+          tx += 2;
+          error += (tx - diameter);
+        }
+    }
 
 }
-
-void ship(int x, int y){  
-  //line(x, y, x-20, y);
- // line(x, y, x, y-10);
- // line(x-20, y, x-20, y-10);
- // line(x, y-10, x-20, y-10);
-     
-
-}
-
-
 
 void Render() {
     SDL_RenderClear(Renderer);   
     SDL_SetRenderDrawColor(Renderer, 255,255, 255, 255); 
     SDL_RenderCopy(Renderer, title, NULL, &rtitle);
-    SDL_RenderCopy(Renderer, open, NULL, &ropen);
-    SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 255);
-    point(shipx, shipy);
+    SDL_RenderCopy(Renderer, open, NULL, &ropen);  
     for(i = 0;i<nr_elem;i++){
       SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
       if(E[i].ELtype == 1)
@@ -372,7 +317,7 @@ void Render() {
       }
       if(E[i].ELtype == 6){
          SDL_SetRenderDrawColor(Renderer, 36, 226, 52, 230);
-         SDL_RenderDrawPoint(Renderer, E[i].x, E[i].y);
+         point(E[i].x, E[i].y);
       }
     if(E[i].ELtype == 5){
         SDL_SetRenderDrawColor(Renderer, 112, 63, 0, 240);
@@ -409,25 +354,9 @@ void Render() {
       circle(E[i].x, E[i].y, E[i].dm);
     }
     }
-
-    SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
-  //  for(int i=1;i<=720;i++)
-    //  for(int j=1;j<=1280;j++)
-      //    if(!map[i][j]) SDL_RenderDrawPoint(Renderer, i, j); 
-    std::cout<<"curstep:"<<curstep<<"\n";
-      if(roadcalc){
-        curstep++;
-        std::cout<<"A";
-        if(steps[curstep]=='N') shipy-=1; 
-        if(steps[curstep]=='S') shipy+=1;
-        if(steps[curstep]=='E') shipx+=1;
-        if(steps[curstep]=='V') shipx-=1;
-      std::cout<<"shipx:"<<shipx<<'\n'<<"shipy:"<<shipy<<" "<<curstep;
-      
-      }
 		SDL_RenderPresent(Renderer);
     SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);  
-    SDL_Delay(500);
+    SDL_Delay(SDL_DELAY);
 }
 
 
