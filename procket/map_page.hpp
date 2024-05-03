@@ -11,15 +11,28 @@
 #include "textRendering.h"
 #include "menu.h"
 #include "switch_page.h"
-
+#include <queue>
 
 #define MAX_ELEM 1001
-#define SDL_DELAY 100
-
+#define SDL_DELAY 500
+//pentru algortimul lui lee
 bool map[720][1280];
+int n,m, b[720][1280];
+int dx[] = {0, 0, -1, 1};
+int dy[] = {-1, 1, 0, 0};
+const char* dir="SNEV";
+char steps[1001];
+long long int nrsteps;
+int curstep=-1;
+
+int defx = 30;
+int defy = 30;
+int shipx = defx;
+int shipy = defy;
+
 int posr;
 bool finpon = true;
-
+bool roadcalc;
 //Tipuri:
 //1-punct
 //2-planeta statica
@@ -29,8 +42,8 @@ bool finpon = true;
 //6-punct de interes
 //7-gaura neagra
 
-//Tipuri speciale:
-//8-punct interes planeta (P.I.P.)
+//Tipuri speciale (nu pot fi puse de utilizator):
+//8-punct interes planeta (PIP)
 //9-asteroid static 
 //10 - gaura neagra cu diametru maxim
 
@@ -46,14 +59,14 @@ int nr_rpovif;
 
 struct aelem {
   int ELtype;
-  int d=0;           // pentru cerc
+  int d=0;           // pentru planete statice/mergatoare.
   int dc = 0;        // pentru stele (diametru caldura)
   int dm = 0;        // pentru gauri negre (diametru maxim) si pentru stele, pentru a calcula cat de aproape se poate afla racheta de aceasta stea.
   int temp = 0;      // pentru stele: 0-stea rece; 1-stea calduta; 2-stea calda; 3-stea foarte calda; 4-stea fierbinte.
   int x;             // generic
   int y;             // generic 
   short cycle = 0;
-  int nrpovif = 0;
+  int nrpovif = 0; //pentru planeta mergatoare, asteroid si gauri negre
   pofint povif[100]; // pentru planeta mergatoare, asteroid si gauri negre
 };
 
@@ -65,6 +78,7 @@ void RenderMainMenu();
 
 
 void MakeElem(int X, int Y){
+  std::cout<<"got here!";
   if(ctype == 1){
     E[nr_elem].ELtype = 1;
 }
@@ -88,7 +102,7 @@ void MakeElem(int X, int Y){
       posr = 0;
     }
     else{
-      E[nr_elem].ELtype = 4;
+      E[nr_elem].ELtype = 8;
       posr++;
     }
 
@@ -110,18 +124,103 @@ void MakeElem(int X, int Y){
   if(ctype == 4){
     E[nr_elem].ELtype = 4;
     E[nr_elem].temp = 2;
-    E[nr_elem].d = 15;
+    E[nr_elem].d = 15 + E[nr_elem].temp*2;
     E[nr_elem].dm = E[nr_elem].d * E[nr_elem].temp + 5;
   }
 if(ctype == 1 || ctype == 2 || (ctype == 3 && !finpon) || (ctype == 5 && !finpon) || ctype == 7 || ctype == 4){
   E[nr_elem].x = X/2;
   E[nr_elem].y = Y/2;
 }
+if(ctype!=6){
+	roadcalc = false;
+	curstep = 0;
 }
+}
+
+
 
 //MARK: #include "Rmap_File.h"
 #include "Rmap_File.h"
 //DO NOT TOUCH IT!!!
+
+
+void clearb(){
+  for(int i=0;i<720;i++)
+    for(int j=0;j<1280;j++)
+      b[i][j] = 0;
+
+
+}
+bool inmat(int i, int j){
+  return i>=0 && j>=1 && i<=720 && j<=1280;
+}
+/*
+magie!
+d=0 -> jos (Sud)
+d=1 -> sus (Nord)
+d=2 -> stanga (Vest)
+d=3 -> dreapta (Est)
+*/
+
+void drum(int destx, int desty){
+     nrsteps = 0;
+    if(shipx == destx && shipy == desty)
+      return ;
+    else{
+      for(int d=0;d<=3;++d){
+        int xnou = destx+dx[d];
+        int ynou = desty+dy[d];
+        if(inmat(xnou, ynou) && b[xnou][ynou] == b[destx][desty]-1){
+          drum(xnou, ynou);
+          steps[nrsteps++] = dir[d];
+          std::cout<<"D"<<dir[d]<<" ";
+          break;
+        }
+      }
+    }
+    std::cout<<"NRSTEPS:"<<nrsteps;
+
+
+}
+
+void lee(int istart, int jstart){
+
+  SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
+  clearb();
+  std::queue <std::pair<int, int>> Q;
+  Q.push(std::make_pair(istart, jstart));
+  b[istart][jstart] = 0;
+  while(!Q.empty()){
+    int x = Q.front().first;
+    int y = Q.front().second;
+    Q.pop();
+    for(int d=0;d<=3;++d){
+      int inou = dx[d]+x;
+      int jnou = dy[d]+y;
+      if(inmat(inou, jnou) &&!map[inou][jnou]&& b[inou][jnou] == 0){
+
+        b[inou][jnou] = b[x][y]+1;
+        Q.push(std::make_pair(inou, jnou));
+        SDL_RenderDrawPoint(Renderer, inou, jnou);
+      }
+    }
+
+
+  }
+
+//  for(int i=0;i<720;i++, std::cout<<'\n')
+  //  for(int j=0;j<1280;j++)
+    // std::cout<< b[i][j]<<" ";
+    std::cout<<"XR:"<<rpovif[0].x<<" "<<"YR:"<<rpovif[0].y<<'\n';
+    std::cout<<b[rpovif[0].x][rpovif[0].y];
+    drum(rpovif[0].x, rpovif[0].y);
+
+   for(int i=0;i<nrsteps;i++)
+     std::cout<<steps[i]<<" ";
+}
+
+
+
 
 bool IsPollingEventM() {
     while(SDL_PollEvent(&WindowEvent)) {
@@ -148,7 +247,7 @@ bool IsPollingEventM() {
 
 	    case SDL_KEYDOWN:
 
-            if(WindowEvent.key.keysym.sym == SDLK_1)
+            if(WindowEvent.key.keysym.sym == SDLK_1) 
               if(finpon)
               ctype = 1;
             if(WindowEvent.key.keysym.sym == SDLK_2)
@@ -176,6 +275,11 @@ bool IsPollingEventM() {
                 ClearMainGraphics();
                 RenderMainMenu();
             }
+	     if(WindowEvent.key.keysym.sym == SDLK_a){
+              lee(shipx, shipy);
+              roadcalc = true;
+            }
+
             #ifdef DEBUG_MAP_PAGE
                 std::cout <<'\n'<< "ctype: "<<ctype<<'\n';
             #endif
@@ -211,7 +315,7 @@ bool IsPollingEventM() {
 //MARK: SDL Pol Event End
 void point(float x, float y){
   SDL_RenderDrawPointF(Renderer, x, y);
-  map[int(x)][int(y)] = false;
+  if(inmat(x, y)) map[int(x)][int(y)] = true;
 }
 
  void line(float x1, float y1, float x2, float y2){
@@ -221,75 +325,19 @@ void point(float x, float y){
              float angle = std::atan2(dy, dx);
              for(float i=0;i<length;i++){
                             SDL_RenderDrawPointF(Renderer, x1+std::cos(angle)*i, y1 + std::sin(angle)*i);
-                            map[int(y1+std::sin(angle)*i)][int(x1+std::cos(angle)*i)] = false;
+                            map[int(y1+std::sin(angle)*i)][int(x1+std::cos(angle)*i)] = true;
              }
 
   };
 
-
-
-void circle(int32_t centreX, int32_t centreY,
-      int32_t diameter, int32_t parts=8){
-
-
-      int32_t x = (diameter/2 - 1);
-      int32_t y = 0;
-      int32_t tx = 1;
-      int32_t ty = 1;
-      int32_t error = (tx - diameter);
-
-
-      while (x >= y)
-      {
-         //  Each of the following renders an octant of the circle
-        if(parts>=1){
-             SDL_RenderDrawPointF(Renderer, centreX+x, centreY-y);
-             map[centreY-y][centreX+x] = false;
-        }
-        if(parts>=2){
-             SDL_RenderDrawPointF(Renderer, centreX+x, centreY+y);
-
-             map[centreY+y][centreX+x] = false;
-        }
-      if(parts>=3){
-             SDL_RenderDrawPointF(Renderer, centreX-x, centreY-y);
-
-             map[centreY-y][centreX-x] = false;
-      }
-       if(parts>=4){
-            SDL_RenderDrawPointF(Renderer, centreX-x, centreY+y);
-             map[centreY+y][centreX-x] = false;
-       }
-       if(parts>=5){
-           SDL_RenderDrawPointF(Renderer, centreX+y, centreY-x);
-             map[centreY-x][centreX+y] = false;
-       }
-       if(parts>=6){
-            SDL_RenderDrawPointF(Renderer, centreX+y, centreY+x);
-             map[centreY+x][centreX+y] = false;
-       }
-       if(parts>=7){
-           SDL_RenderDrawPointF(Renderer, centreX-y,  centreY-x);
-             map[centreY-x][centreX-y] = false;
-       }
-       if(parts>=8){
-           SDL_RenderDrawPointF(Renderer, centreX-y, centreY+x);
-             map[centreY+x][centreX-y] = false;
-       }
-        if (error <= 0)
+void circle(int x, int y, int d){
+    int circle_radius = d/2;
+        for (int t = 0; t < 360; t++)
         {
-           ++y;
-           error += ty;
-           ty += 2;
+
+            point(x+circle_radius*std::cos(t), y+circle_radius*std::sin(t));
         }
 
-        if (error > 0)
-        {
-          --x;
-          tx += 2;
-          error += (tx - diameter);
-        }
-    }
 
 }
 
@@ -298,6 +346,8 @@ void Render() {
     SDL_SetRenderDrawColor(Renderer, 255,255, 255, 255); 
     SDL_RenderCopy(Renderer, title, NULL, &rtitle);
     SDL_RenderCopy(Renderer, open, NULL, &ropen);  
+    SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 255);
+    point(shipx, shipy);
     for(i = 0;i<nr_elem;i++){
       SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
       if(E[i].ELtype == 1)
@@ -311,13 +361,13 @@ void Render() {
       }
 
 
-      if(E[i].ELtype == 4){
+      if(E[i].ELtype == 8){
         SDL_SetRenderDrawColor(Renderer, 137, 139, 140, 200);
         point(E[i].x, E[i].y);
       }
       if(E[i].ELtype == 6){
          SDL_SetRenderDrawColor(Renderer, 36, 226, 52, 230);
-         point(E[i].x, E[i].y);
+         SDL_RenderDrawPoint(Renderer, E[i].x, E[i].y);
       }
     if(E[i].ELtype == 5){
         SDL_SetRenderDrawColor(Renderer, 112, 63, 0, 240);
@@ -354,6 +404,17 @@ void Render() {
       circle(E[i].x, E[i].y, E[i].dm);
     }
     }
+        if(roadcalc){
+        curstep++;
+        std::cout<<"A";
+        if(steps[curstep]=='N') shipy-=1;
+        if(steps[curstep]=='S') shipy+=1;
+        if(steps[curstep]=='E') shipx+=1;
+        if(steps[curstep]=='V') shipx-=1;
+      std::cout<<"shipx:"<<shipx<<'\n'<<"shipy:"<<shipy<<" "<<curstep;
+      }
+//	std::cout<<"curstep:"<<curstep<<'\n';
+
 		SDL_RenderPresent(Renderer);
     SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);  
     SDL_Delay(SDL_DELAY);
@@ -364,6 +425,7 @@ void Render() {
 
 void RenderMapPage()
 {
+  
   SDL_RenderSetScale(Renderer, 2, 2);
    while(IsPollingEventM()){
       Render();
