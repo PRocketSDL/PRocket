@@ -81,14 +81,14 @@ void MakeElem(int X, int Y){
   std::cout<<"got here!";
   if(ctype == 1){
     E[nr_elem].ELtype = 1;
-}
+  }
   if(ctype == 2){
     E[nr_elem].ELtype = 2;
     E[nr_elem].d = 25;
-}
+  }
   if(ctype == 3 || ctype == 5){
     if(finpon){
-   if(ctype == 3){   E[nr_elem].ELtype = 3;}
+      if(ctype == 3){   E[nr_elem].ELtype = 3;}
       else{ E[nr_elem].ELtype = 5; }
       E[nr_elem].d = 25;
       E[nr_elem].x = E[nr_elem-posr].x;
@@ -105,7 +105,6 @@ void MakeElem(int X, int Y){
       E[nr_elem].ELtype = 8;
       posr++;
     }
-
   }
   if(ctype == 6){
     E[nr_elem].ELtype = 6;
@@ -127,14 +126,14 @@ void MakeElem(int X, int Y){
     E[nr_elem].d = 15 + E[nr_elem].temp*2;
     E[nr_elem].dm = E[nr_elem].d * E[nr_elem].temp + 5;
   }
-if(ctype == 1 || ctype == 2 || (ctype == 3 && !finpon) || (ctype == 5 && !finpon) || ctype == 7 || ctype == 4){
-  E[nr_elem].x = X/2;
-  E[nr_elem].y = Y/2;
-}
-if(ctype!=6){
-	roadcalc = false;
-	curstep = 0;
-}
+  if(ctype == 1 || ctype == 2 || (ctype == 3 && !finpon) || (ctype == 5 && !finpon) || ctype == 7 || ctype == 4){
+    E[nr_elem].x = X/2;
+    E[nr_elem].y = Y/2;
+  }
+  if(ctype!=6){
+	  roadcalc = false;
+	  curstep = 0;
+  }
 }
 
 
@@ -148,8 +147,6 @@ void clearb(){
   for(int i=0;i<720;i++)
     for(int j=0;j<1280;j++)
       b[i][j] = 0;
-
-
 }
 bool inmat(int i, int j){
   return i>=0 && j>=1 && i<=720 && j<=1280;
@@ -163,24 +160,22 @@ d=3 -> dreapta (Est)
 */
 
 void drum(int destx, int desty){
-     nrsteps = 0;
-    if(shipx == destx && shipy == desty)
-      return ;
-    else{
-      for(int d=0;d<=3;++d){
-        int xnou = destx+dx[d];
-        int ynou = desty+dy[d];
-        if(inmat(xnou, ynou) && b[xnou][ynou] == b[destx][desty]-1){
-          drum(xnou, ynou);
-          steps[nrsteps++] = dir[d];
-          std::cout<<"D"<<dir[d]<<" ";
-          break;
-        }
+  nrsteps = 0;
+  if(shipx == destx && shipy == desty)
+    return ;
+  else{
+    for(int d=0;d<=3;++d){
+      int xnou = destx+dx[d];
+      int ynou = desty+dy[d];
+      if(inmat(xnou, ynou) && b[xnou][ynou] == b[destx][desty]-1){
+        drum(xnou, ynou);
+        steps[nrsteps++] = dir[d];
+        std::cout<<"D"<<dir[d]<<" ";
+        break;
       }
     }
-    std::cout<<"NRSTEPS:"<<nrsteps;
-
-
+  }
+  std::cout<<"NRSTEPS:"<<nrsteps;
 }
 
 void lee(int istart, int jstart){
@@ -198,200 +193,192 @@ void lee(int istart, int jstart){
       int inou = dx[d]+x;
       int jnou = dy[d]+y;
       if(inmat(inou, jnou) &&!map[inou][jnou]&& b[inou][jnou] == 0){
-
         b[inou][jnou] = b[x][y]+1;
         Q.push(std::make_pair(inou, jnou));
         SDL_RenderDrawPoint(Renderer, inou, jnou);
       }
     }
-
-
   }
 
 //  for(int i=0;i<720;i++, std::cout<<'\n')
   //  for(int j=0;j<1280;j++)
     // std::cout<< b[i][j]<<" ";
-    std::cout<<"XR:"<<rpovif[0].x<<" "<<"YR:"<<rpovif[0].y<<'\n';
-    std::cout<<b[rpovif[0].x][rpovif[0].y];
-    drum(rpovif[0].x, rpovif[0].y);
+  std::cout<<"XR:"<<rpovif[0].x<<" "<<"YR:"<<rpovif[0].y<<'\n';
+  std::cout<<b[rpovif[0].x][rpovif[0].y];
+  drum(rpovif[0].x, rpovif[0].y);
 
-   for(int i=0;i<nrsteps;i++)
-     std::cout<<steps[i]<<" ";
+  for(int i=0;i<nrsteps;i++)
+    std::cout<<steps[i]<<" ";
 }
 
 
 
 
 bool IsPollingEventM() {
-    while(SDL_PollEvent(&WindowEvent)) {
+  while(SDL_PollEvent(&WindowEvent)) {
 
-        switch (WindowEvent.type) {
-            case SDL_QUIT:
-        		    return false;
-                break;
+    switch (WindowEvent.type) {
+      case SDL_QUIT:
+        return false;
+        break;
 
-        case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONDOWN:
         switch (WindowEvent.button.button)
         {
-            case SDL_BUTTON_LEFT:
-                SDL_GetMouseState(&msX, &msY);
-                #ifdef DEBUG_MAP_PAGE
-                    std::cout << "[Map Page Debug] -> Mouse Pos (X, Y): " <<  msX<<" | "<<msY<<'\n';
-                #endif
-                MakeElem(msX, msY);
-                nr_elem++;
-                break;
-
+          case SDL_BUTTON_LEFT:
+            SDL_GetMouseState(&msX, &msY);
+            #ifdef DEBUG_MAP_PAGE
+              std::cout << "[Map Page Debug] -> Mouse Pos (X, Y): " <<  msX<<" | "<<msY<<'\n';
+            #endif
+            MakeElem(msX, msY);
+            nr_elem++;
+            break;
         }
 
+	    case SDL_KEYDOWN:  
+        if(WindowEvent.key.keysym.sym == SDLK_1) 
+          if(finpon)
+            ctype = 1;
+        if(WindowEvent.key.keysym.sym == SDLK_2)
+          if(finpon)
+            ctype = 2;
+        if(WindowEvent.key.keysym.sym == SDLK_3)
+          if(posr == 0 && finpon){
+            ctype = 3;
+            finpon = false;
+          }
+        if(WindowEvent.key.keysym.sym == SDLK_4)
+          ctype = 4;
+        if(WindowEvent.key.keysym.sym == SDLK_6)
+          ctype = 6;
+        if(WindowEvent.key.keysym.sym == SDLK_5)
 
-	    case SDL_KEYDOWN:
+        if(posr == 0 && finpon){
+          ctype = 5;
+          finpon = false;
+        }
+        if(WindowEvent.key.keysym.sym == SDLK_7)
+          ctype = 7;
+        if(WindowEvent.key.keysym.sym == SDLK_LEFT)
+        {
+          SDL_RenderSetScale(Renderer, 1, 1);
+          ClearMainGraphics();
+          RenderMainMenu();
+        }
+	      if(WindowEvent.key.keysym.sym == SDLK_a){
+          lee(shipx, shipy);
+          roadcalc = true;
+        }
 
-            if(WindowEvent.key.keysym.sym == SDLK_1) 
-              if(finpon)
-              ctype = 1;
-            if(WindowEvent.key.keysym.sym == SDLK_2)
-              if(finpon)
-              ctype = 2;
-            if(WindowEvent.key.keysym.sym == SDLK_3)
-              if(posr == 0 && finpon){
-                 ctype = 3;
-                 finpon = false;
-              }
-            if(WindowEvent.key.keysym.sym == SDLK_4)
-              ctype = 4;
-            if(WindowEvent.key.keysym.sym == SDLK_6)
-              ctype = 6;
-            if(WindowEvent.key.keysym.sym == SDLK_5)
-              if(posr == 0 && finpon){
-              ctype = 5;
-              finpon = false;
-              }
-            if(WindowEvent.key.keysym.sym == SDLK_7)
-              ctype = 7;
-            if(WindowEvent.key.keysym.sym == SDLK_LEFT)
-            {
-              SDL_RenderSetScale(Renderer, 1, 1);
-                ClearMainGraphics();
-                RenderMainMenu();
-            }
-	     if(WindowEvent.key.keysym.sym == SDLK_a){
-              lee(shipx, shipy);
-              roadcalc = true;
-            }
+        #ifdef DEBUG_MAP_PAGE
+          std::cout <<'\n'<< "ctype: "<<ctype<<'\n';
+        #endif
+        //Left Ctrl+S || Right Ctrl+S
+        if(WindowEvent.key.keysym.sym == SDLK_s)
+        {
+          WriteRMAP();
+        }
 
-            #ifdef DEBUG_MAP_PAGE
-                std::cout <<'\n'<< "ctype: "<<ctype<<'\n';
-            #endif
-            //Left Ctrl+S || Right Ctrl+S
-            if(WindowEvent.key.keysym.sym == SDLK_s)
-            {
-              WriteRMAP();
-            }
-
-            if(WindowEvent.key.keysym.sym == SDLK_t)
-            {
-              ReadRMAP();
-            }
-            const Uint8 *numKeys = SDL_GetKeyboardState(NULL);
+        if(WindowEvent.key.keysym.sym == SDLK_t)
+        {
+          //ReadRMAP();
+          const Uint8 *numKeys = SDL_GetKeyboardState(NULL);
+          std::cout << "num keys pressed: " << numKeys << "\n";
+          }
             
-            std::cout << "num keys pressed: " << numKeys << "\n";
-            if(WindowEvent.key.keysym.sym == SDLK_RETURN && !finpon && posr > 0){
-              finpon = true;
-              MakeElem(msX, msY);
-              nr_elem++;
-            }
-            #ifdef DEBUG_MAP_PAGE
-                if(finpon) 
-                    std::cout<<"Is true \n";
-                else 
-                    std::cout<<"Is false \n";
-            #endif
-        break;
+        if(WindowEvent.key.keysym.sym == SDLK_RETURN && !finpon && posr > 0){
+          finpon = true;
+          MakeElem(msX, msY);
+          nr_elem++;
         }
+        #ifdef DEBUG_MAP_PAGE
+          if(finpon) 
+            std::cout<<"Is true \n";
+          else 
+            std::cout<<"Is false \n";
+        #endif
+      break;
     }
-    return true;
+  }
+  return true;
 }
 //MARK: SDL Pol Event End
+
 void point(float x, float y){
   SDL_RenderDrawPointF(Renderer, x, y);
   if(inmat(x, y)) map[int(x)][int(y)] = true;
 }
 
- void line(float x1, float y1, float x2, float y2){
-             float dx = x2-x1;
-             float dy = y2 - y1;
-             float length = std::sqrt(dx*dx+dy*dy);
-             float angle = std::atan2(dy, dx);
-             for(float i=0;i<length;i++){
-                            SDL_RenderDrawPointF(Renderer, x1+std::cos(angle)*i, y1 + std::sin(angle)*i);
-                            map[int(y1+std::sin(angle)*i)][int(x1+std::cos(angle)*i)] = true;
-             }
-
-  };
+void line(float x1, float y1, float x2, float y2){
+  float dx = x2-x1;
+  float dy = y2 - y1;
+  float length = std::sqrt(dx*dx+dy*dy);
+  float angle = std::atan2(dy, dx);
+  for(float i=0;i<length;i++){
+    SDL_RenderDrawPointF(Renderer, x1+std::cos(angle)*i, y1 + std::sin(angle)*i);
+    map[int(y1+std::sin(angle)*i)][int(x1+std::cos(angle)*i)] = true;
+  }
+};
 
 void circle(int x, int y, int d){
-    int circle_radius = d/2;
-        for (int t = 0; t < 360; t++)
-        {
-
-            point(x+circle_radius*std::cos(t), y+circle_radius*std::sin(t));
-        }
-
-
+  int circle_radius = d/2;
+  for (int t = 0; t < 360; t++)
+  {
+    point(x+circle_radius*std::cos(t), y+circle_radius*std::sin(t));
+  }
 }
 
 void Render() {
-    SDL_RenderClear(Renderer);   
-    SDL_SetRenderDrawColor(Renderer, 255,255, 255, 255); 
-    SDL_RenderCopy(Renderer, title, NULL, &rtitle);
-    SDL_RenderCopy(Renderer, open, NULL, &ropen);  
-    SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 255);
-    point(shipx, shipy);
-    for(i = 0;i<nr_elem;i++){
-      SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-      if(E[i].ELtype == 1)
-        point(E[i].x, E[i].y);
-      if(E[i].ELtype == 2)
-        circle(E[i].x, E[i].y, E[i].d);
-      if(E[i].ELtype == 3){
-        if(E[i].cycle == E[i].nrpovif) E[i].cycle = 0;
-        circle(E[i].povif[E[i].cycle].x, E[i].povif[E[i].cycle].y, E[i].d);
-        E[i].cycle ++;
-      }
+  SDL_RenderClear(Renderer);   
+  SDL_SetRenderDrawColor(Renderer, 255,255, 255, 255); 
+  SDL_RenderCopy(Renderer, title, NULL, &rtitle);
+  SDL_RenderCopy(Renderer, openMenu, NULL, &ropen);  
+  SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 255);
+  point(shipx, shipy);
+  for(i = 0;i<nr_elem;i++){
+    SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
+    if(E[i].ELtype == 1)
+      point(E[i].x, E[i].y);
+    if(E[i].ELtype == 2)
+      circle(E[i].x, E[i].y, E[i].d);
+    if(E[i].ELtype == 3){
+      if(E[i].cycle == E[i].nrpovif) E[i].cycle = 0;
+      circle(E[i].povif[E[i].cycle].x, E[i].povif[E[i].cycle].y, E[i].d);
+      E[i].cycle ++;
+    }
 
-
-      if(E[i].ELtype == 8){
-        SDL_SetRenderDrawColor(Renderer, 137, 139, 140, 200);
-        point(E[i].x, E[i].y);
-      }
-      if(E[i].ELtype == 6){
-         SDL_SetRenderDrawColor(Renderer, 36, 226, 52, 230);
-         SDL_RenderDrawPoint(Renderer, E[i].x, E[i].y);
-      }
+    if(E[i].ELtype == 8){
+      SDL_SetRenderDrawColor(Renderer, 137, 139, 140, 200);
+      point(E[i].x, E[i].y);
+    }
+    if(E[i].ELtype == 6){
+      SDL_SetRenderDrawColor(Renderer, 36, 226, 52, 230);
+      SDL_RenderDrawPoint(Renderer, E[i].x, E[i].y);
+    }
     if(E[i].ELtype == 5){
-        SDL_SetRenderDrawColor(Renderer, 112, 63, 0, 240);
-        if(E[i].cycle == E[i].nrpovif){ 
-          E[i].ELtype = 9; 
-          E[i].x = E[i].povif[E[i].cycle-1].x; 
-          E[i].y = E[i].povif[E[i].cycle-1].y;
-          circle(E[i].x, E[i].y, E[i].d);
-        }
-        else{
+      SDL_SetRenderDrawColor(Renderer, 112, 63, 0, 240);
+      if(E[i].cycle == E[i].nrpovif){ 
+        E[i].ELtype = 9; 
+        E[i].x = E[i].povif[E[i].cycle-1].x; 
+        E[i].y = E[i].povif[E[i].cycle-1].y;
+        circle(E[i].x, E[i].y, E[i].d);
+      }
+      else{
         circle(E[i].povif[E[i].cycle].x, E[i].povif[E[i].cycle].y, E[i].d);
-       E[i].cycle++;}
-     }
+        E[i].cycle++;
+      }
+    }
     if(E[i].ELtype == 9){
       SDL_SetRenderDrawColor(Renderer, 122, 63, 0, 240);
       circle(E[i].x, E[i].y, E[i].d);
     }
     if(E[i].ELtype == 7){
-        SDL_SetRenderDrawColor(Renderer, 71, 5, 89, 210);
-        if(E[i].d == E[i].dm){
-            E[i].ELtype = 10;
-        }
-        circle(E[i].x, E[i].y, E[i].d);
-        E[i].d += E[i].cycle;
+      SDL_SetRenderDrawColor(Renderer, 71, 5, 89, 210);
+      if(E[i].d == E[i].dm){
+          E[i].ELtype = 10;
+      }
+      circle(E[i].x, E[i].y, E[i].d);
+      E[i].d += E[i].cycle;
     }
     if(E[i].ELtype == 10){
       SDL_SetRenderDrawColor(Renderer, 71, 5, 89, 210);
@@ -403,31 +390,26 @@ void Render() {
       SDL_SetRenderDrawColor(Renderer, 137, 139, 140, 150);
       circle(E[i].x, E[i].y, E[i].dm);
     }
-    }
-        if(roadcalc){
-        curstep++;
-        std::cout<<"A";
-        if(steps[curstep]=='N') shipy-=1;
-        if(steps[curstep]=='S') shipy+=1;
-        if(steps[curstep]=='E') shipx+=1;
-        if(steps[curstep]=='V') shipx-=1;
-      std::cout<<"shipx:"<<shipx<<'\n'<<"shipy:"<<shipy<<" "<<curstep;
-      }
-//	std::cout<<"curstep:"<<curstep<<'\n';
+  }
+  if(roadcalc){
+    curstep++;
+    std::cout<<"A";
+    if(steps[curstep]=='N') shipy-=1;
+    if(steps[curstep]=='S') shipy+=1;
+    if(steps[curstep]=='E') shipx+=1;
+    if(steps[curstep]=='V') shipx-=1;
+      std::cout<<"shipx:"<<shipx<<'\n'<<" shipy:"<<shipy<<" "<<curstep;
+  }
 
-		SDL_RenderPresent(Renderer);
-    SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);  
-    SDL_Delay(SDL_DELAY);
+  SDL_RenderPresent(Renderer);
+  SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);  
+  SDL_Delay(SDL_DELAY);
 }
-
-
-
 
 void RenderMapPage()
 {
-  
   SDL_RenderSetScale(Renderer, 2, 2);
-   while(IsPollingEventM()){
-      Render();
-   }
+  while(IsPollingEventM()){
+    Render();
+  }
 }
