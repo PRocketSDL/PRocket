@@ -1,127 +1,125 @@
 #pragma once
 
-#include <iostream>
 #include <stdio.h>
 #include <string.h>
 
-#if defined _WIN32 || defined _WIN64
-    #include <windows.h>
-    #include <commdlg.h>
-    #include <io.h>
-#endif
+
+#include "ext_deps/init/ini.hpp"
+#include "ext_deps/ANSI_Utils.h"
+
+#include "map_page.hpp"
+#include "switch_page.h"
+#include "FD_IO.h"
+
+
+#define STR_SIZE 55000
 
 
 
-#define StrSize 1024
-
-char rmap_i[StrSize];
-char rmap_o[StrSize];
-
-FILE *f;
-
-#if defined _WIN32 || defined _WIN64
-    void SymRem(char text[], char symbol, char* clean)
-    {
-        size_t i,j;
-        for(i = 0, j = 0; i < strlen(text); i++)
-        {
-            if(text[i] != symbol)
-            {
-                clean[j++] = text[i];
-            }
-        }
-        clean[j] = '\0';
-    }
-#endif
-
-
-//MARK: Open FD
-void OpenFileDialog()
+//MARK: WriteRMAP
+void WriteRMAP()
 {
-    #ifdef __linux__
-        f = popen("zenity --file-selection --file-filter='*.rmap' --filename='.rmap' --title='Select rocket map file'", "r");
-        fgets(rmap_i, StrSize, f);
-        #ifdef DEBUG_FD
-            if(strlen(rmap_o) == 0)
-                std::cout << "[File Dialog] -> Selection: none\n";
-            else
-                std::cout << "[File Dialog] -> Selection: " << rmap_i << "\n";
+    init::ini rmapStruct;
+
+    char ResultPath[STR_SIZE];
+
+    if(strlen(rmap_o) == 0)
+    {
+        #ifdef DEBUG_RMAP_FILE
+            std::cout << "[Rmap File Debug] -> No File Saved. Waiting For File Selection...\n";
         #endif
-    #endif
-
-    #if defined _WIN32 || defined _WIN64
-        char FixedPath[260];
-        OPENFILENAME ofn;
-
-        ZeroMemory(&ofn, sizeof(ofn));
-
-        ofn.lStructSize = sizeof(ofn);
-        ofn.lpstrFilter = "Rocket Map Files Files\0*.rmap\0";
-        ofn.lpstrFile = rmap_i;
-        ofn.nMaxFile = sizeof(rmap_i);
-        ofn.lpstrTitle = "Select Rocket Map File";
-        ofn.Flags = OFN_DONTADDTORECENT | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXTENSIONDIFFERENT;
-
-        if(!GetOpenFileName(&ofn))
-        {
-            #ifdef DEBUG_FD
-                std::cout << "[File Dialog] -> Selection: none\n";
-            #endif
-            memset(rmap_i, 0, sizeof(rmap_i));
-        }
-        SymRem(rmap_i, '\"', FixedPath);
-        #ifdef DEBUG_FD
-            std::cout << "[File Dialog] -> Selection: " << rmap_i << "\n";
+        SaveFileDialog();
+    }
+    else
+    {
+        #ifdef DEBUG_RMAP_FILE
+            std::cout << "[Rmap File Debug] -> File - " << ResultPath << " updated\n";
+            std::cout << "[Rmap File Debug] -> Write\n";
+            std::cout << "[Rmap File Debug] -> Element count: " << nr_elem << "\n";
         #endif
-    #endif
+    }
+
+    //Auto-append the file extension to the path only once
+    sprintf(ResultPath, "%s%s", rmap_o, ".rmap");
+    
+    char ElemCount[STR_SIZE];
+    
+    //Write the element count to be parsed latter by ReadRMAP()
+    printf(ElemCount, "%d", nr_elem);
+    rmapStruct["Main"]["TotalElemCount"] = nr_elem;
+    
+    for(int i = 0; i < nr_elem; i++)
+    {
+        sprintf(ElemCount, "Element_%d", i);
+        rmapStruct[ElemCount]["type"] = E[i].ELtype;
+        rmapStruct[ElemCount]["Xpos"] = E[i].x;
+        rmapStruct[ElemCount]["Ypos"] = E[i].y;
+        if(E[i].ELtype == 2 || E[i].ELtype==7) rmapStruct[ElemCount]["D"] = E[i].d;
+        if(E[i].ELtype == 4 || E[i].ELtype == 7) rmapStruct[ElemCount]["Dm"] = E[i].dm;
+        if(E[i].ELtype == 4) rmapStruct[ElemCount]["Temp"] = E[i].temp;
+      
+
+        #ifdef DEBUG_RMAP_FILE
+            std::cout << "Type num: " << E[i].ELtype << " | " << "XPos: " << E[i].x << " | " << "YPos: " << E[i].y << "\n";
+        #endif
+    }
+    if(strlen(rmap_o) == 0)
+    {
+        #ifdef DEBUG_RMAP_FILE
+            std::cout << "[Rmap File Debug] -> No result file.\n";
+        #endif
+    }
+    else
+    {
+        init::write_ini(rmapStruct, ResultPath);
+    }
 }
 
-
-//MARK: Save FD
-void SaveFileDialog()
+//MARK: ReadRMAP
+void ReadRMAP()
 {
-    #ifdef __linux__
-    f = popen("zenity --file-selection --save --file-filter='*.rmap' --filename='.rmap' --title='Save Rocket Map'", "r");
-        fgets(rmap_o, StrSize, f);
-        #ifdef DEBUG_FD
-            if(strlen(rmap_o) == 0)
-            {
-                std::cout << "[File Dialog] -> Save: none\n";
-            }
-            else
-            {
-                std::cout << "[File Dialog] -> Save: " << rmap_o << "\n";
-            }
+    #ifdef DEBUG_RMAP_FILE
+        std::cout << "[Rmap File Debug] -> Load rmap file. Waiting for file selection...\n";
+    #endif
+
+    OpenFileDialog();
+
+    const auto rmapStrIn = init::read_ini(rmap_i);
+
+    //The parameters to be stored after parsing the rmap file
+    int InElemCount;
+    int Xin;
+    int Yin;
+    int InType;
+    int Diam;
+    int Dm;
+    int Temp;
+    const auto& MainHeader = rmapStrIn.at("Main");
+    MainHeader.at("TotalElemCount").get_to(InElemCount);
+    char ElemSect[STR_SIZE];
+    std::cout<<"A"<<'\n';
+    ClearMainGraphics();
+    std::cout<<"B"<<'\n';
+    for(int i = 0; i < InElemCount; i++)
+    {
+        sprintf(ElemSect, "Element_%d", i);
+        const auto& ElSects = rmapStrIn.at(ElemSect);
+        ElSects.at("Xpos").get_to(Xin);
+        ElSects.at("Ypos").get_to(Yin);
+        ElSects.at("type").get_to(InType);
+        if(InType == 2 || InType == 7) ElSects.at("D").get_to(Diam);
+        if(InType == 4 || InType == 7) ElSects.at("Dm").get_to(Dm);
+        if(InType == 4) ElSects.at("Temp").get_to(Temp);
+        if(InType != 3 || InType!= 8 ){
+            if(InType == 10) ctype = 4;
+            else ctype = InType;
+            MakeElem(Xin, Yin);
+            nr_elem++;
+        }
+        #ifdef DEBUG_RMAP_FILE
+            std::cout << "[Rmap File Debug] -> Load state" << " Element_" << i << " | Xpos=  " << Xin << " | Ypos= " << Yin << " | type= " << InType << "\n";
         #endif
-    #endif
-
-    #if defined _WIN32 || defined _WIN64
-        char FixedPath[260];
-        OPENFILENAME ofn;
-        //char temPath[StrSize];
-
-        ZeroMemory(&ofn, sizeof(ofn));
-
-        ofn.lStructSize = sizeof(ofn);
-        ofn.lpstrFilter = "Rocket Map Files Files\0*.rmap\0";
-        ofn.lpstrFile = rmap_o;
-        ofn.nMaxFile = sizeof(rmap_o);
-        ofn.lpstrTitle = "Save Rocket Map Files";
-        ofn.Flags = OFN_DONTADDTORECENT | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        if(!GetSaveFileName(&ofn))
-        {
-            #ifdef DEBUG_FD
-                std::cout << "[File Dialog] -> Selection: none\n";
-            #endif
-            memset(rmap_o, 0, sizeof(rmap_o));
-        }
-        else
-        {
-            SymRem(rmap_o, '\"', FixedPath);
-            #ifdef DEBUG_FD
-                std::cout << "[File Dialog] -> Selection: " << rmap_o << "\n";
-            #endif
-        }
-    #endif
+    }
+    
+    RenderMapPage();
 }
