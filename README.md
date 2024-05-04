@@ -14,8 +14,12 @@ Prin to-do listul din github (pagina "Issues"). Eu voi scrie prima data ce trebu
 
 Fiecare va face minim 2-3 task-uri pe saptamana.
 
-## *Compilarea programului*
+## *Compilarea programului (Linux)*
 
-sudo g++ -Wall -lSDL2 -lSDL2_ttf "fisierul principal" -std=c++20 -o procket
+sudo g++ -Wall -lSDL2 -lSDL2_ttf "fisierul principal" -std=c++20 -o PRocket
 
 -std=c++20 pt noua biblioteca de procesare ini
+
+## *Compilarea programului (Windows)*
+
+g++ menu.cpp -Iext_deps -Lext_deps/lib -lSDL2 -lSDL2_ttf -lcomdlg32 -std=c++20 -o PRocket
