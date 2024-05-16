@@ -27,7 +27,7 @@ int opt=1;
 
 
 
-void CreateSDLWindow() {
+void CreateWindow() {
     Window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (!Window)
@@ -50,11 +50,11 @@ void CreateSDLWindow() {
 
 void ClearMemory() {
     SDL_DestroyTexture(title);	
-    SDL_DestroyTexture(openMenu);
+    SDL_DestroyTexture(open);
     SDL_DestroyRenderer(Renderer);
     SDL_DestroyWindow(Window);
     SDL_Quit();
-    //SaveConfig();
+ //   SaveConfig();
     std::cout << "ClearMemory() function completed succcesfully " <<opt<<" "<<WindowEvent.type<<" "<<SDL_QUIT<<" "<<SDL_KEYUP<<" "<<SDL_KEYDOWN<<std::endl;
 }
 
@@ -161,7 +161,7 @@ void RenderText() {
     #ifdef STUPID_SPAM
     std::cout<< "Render copy: "<<WindowEvent.type<<std::endl; //Too much spam lmao
     #endif
-    if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, openMenu, NULL, &ropen);    
+    if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, open, NULL, &ropen);    
     if(opt==2)  SDL_RenderCopy(Renderer, hcreate, NULL, &rcreate);else SDL_RenderCopy(Renderer, create, NULL, &rcreate);
     if(opt==3)  SDL_RenderCopy(Renderer, hsett, NULL, &rsett);else SDL_RenderCopy(Renderer, sett, NULL, &rsett);
     if(opt==4)  SDL_RenderCopy(Renderer, hexitbtn, NULL, &rexitbtn);else SDL_RenderCopy(Renderer, exitbtn, NULL, &rexitbtn);
@@ -178,10 +178,9 @@ int main() {
     #if defined _WIN32 || defined _WIN64
         SetTerminal();
     #endif
-    //ConfigInit();
-    //SaveConfig();
+   // ConfigInit();
 
-    CreateSDLWindow();
+    CreateWindow();
 
     //The initial state
     RenderMainMenu();

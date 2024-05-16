@@ -19,8 +19,8 @@ SDL_Renderer* Rendererbrown;
 SDL_Event WindowEvent; // Event capturer from SDL Window.
 SDL_Event event; //For the mouse events
 SDL_Surface* TextSurface; //variabila temporara. 
+                          
 SDL_Texture* title;
-
 SDL_Texture* open;
 SDL_Texture* create;
 SDL_Texture* sett;
@@ -38,3 +38,8 @@ SDL_Rect ropen;
 SDL_Rect rcreate;
 SDL_Rect rsett;
 SDL_Rect rexitbtn;
+
+SDL_Surface* image;
+SDL_Texture* image_texture;
+SDL_Rect rimage;
+

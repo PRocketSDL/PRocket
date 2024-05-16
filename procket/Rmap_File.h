@@ -21,8 +21,6 @@ void WriteRMAP()
 {
     init::ini rmapStruct;
 
-    char ResultPath[STR_SIZE];
-
     if(strlen(rmap_o) == 0)
     {
         #ifdef DEBUG_RMAP_FILE
@@ -30,19 +28,13 @@ void WriteRMAP()
         #endif
         SaveFileDialog();
     }
-    else
-    {
-        #ifdef DEBUG_RMAP_FILE
-            std::cout << "[Rmap File Debug] -> File - " << ResultPath << " updated\n";
-            std::cout << "[Rmap File Debug] -> Write\n";
-            std::cout << "[Rmap File Debug] -> Element count: " << nr_elem << "\n";
-        #endif
-    }
-
-    //Auto-append the file extension to the path only once
-    sprintf(ResultPath, "%s%s", rmap_o, ".rmap");
     
     char ElemCount[STR_SIZE];
+    
+    #ifdef DEBUG_RMAP_FILE
+        std::cout << "[Rmap File Debug] -> Write\n";
+        std::cout << "[Rmap File Debug] -> Element count: " << nr_elem << "\n";
+    #endif
     
     //Write the element count to be parsed latter by ReadRMAP()
     printf(ElemCount, "%d", nr_elem);
@@ -63,16 +55,10 @@ void WriteRMAP()
             std::cout << "Type num: " << E[i].ELtype << " | " << "XPos: " << E[i].x << " | " << "YPos: " << E[i].y << "\n";
         #endif
     }
-    if(strlen(rmap_o) == 0)
-    {
-        #ifdef DEBUG_RMAP_FILE
-            std::cout << "[Rmap File Debug] -> No result file.\n";
-        #endif
-    }
-    else
-    {
-        init::write_ini(rmapStruct, ResultPath);
-    }
+    init::write_ini(rmapStruct, rmap_o);
+    #ifdef DEBUG_RMAP_FILE
+        std::cout << "[Rmap File Debug] -> File - " << rmap_o << " updated\n";
+    #endif
 }
 
 //MARK: ReadRMAP
@@ -111,10 +97,10 @@ void ReadRMAP()
         if(InType == 4 || InType == 7) ElSects.at("Dm").get_to(Dm);
         if(InType == 4) ElSects.at("Temp").get_to(Temp);
         if(InType != 3 || InType!= 8 ){
-            if(InType == 10) ctype = 4;
+          if(InType == 10) ctype = 4;
             else ctype = InType;
-            MakeElem(Xin, Yin);
-            nr_elem++;
+          MakeElem(Xin, Yin);
+          nr_elem++;
         }
         #ifdef DEBUG_RMAP_FILE
             std::cout << "[Rmap File Debug] -> Load state" << " Element_" << i << " | Xpos=  " << Xin << " | Ypos= " << Yin << " | type= " << InType << "\n";
@@ -123,3 +109,4 @@ void ReadRMAP()
     
     RenderMapPage();
 }
+    
