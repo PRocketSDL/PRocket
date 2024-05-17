@@ -5,7 +5,7 @@
 #define DEBUG_KEY_EVENT
 #define DEBUG_MAP_PAGE
 #define DEBUG_CONFIG
-#define DEBUG_FONT
+#define DEBUG_ASSETS
 //#define STUPID_SPAM
 
 
@@ -26,8 +26,9 @@ int opt=1;
 
 
 
-void LoadFonts()
+void LoadAssets()
 {
+    //Fonts
     const uint8_t menuFontSize = 40;
     const uint8_t titleFontSize = 70;
     const uint8_t rocketFontSize = 5;
@@ -42,7 +43,7 @@ void LoadFonts()
         CresetAll();
         exit(1);
     }
-    #ifdef DEBUG_FONT
+    #ifdef DEBUG_ASSETS
         else
         {
             std::cout << "[Font Loader] -> menu_opt.ttf loaded\n";
@@ -56,7 +57,7 @@ void LoadFonts()
         CresetAll();
         exit(1);
     }
-    #ifdef DEBUG_FONT
+    #ifdef DEBUG_ASSETS
         else
         {
             std::cout << "[Font Loader] -> menu_font.ttf loaded\n";
@@ -70,10 +71,27 @@ void LoadFonts()
         CresetAll();
         exit(1);
     }
-    #ifdef DEBUG_FONT
+    #ifdef DEBUG_ASSETS
         else
         {
             std::cout << "[Font Loader] -> rocket.otf loaded\n";
+        }
+    #endif
+
+    //Images
+    image = IMG_Load("assets/images/bg.png");
+
+    if(!image)
+    {
+        XtermFG(FG, 196);
+        std::cout << "Failed to load \"assets/images/bg.png\"\n";
+        CresetAll();
+        exit(1);
+    }
+    #ifdef DEBUG_ASSETS
+        else
+        {
+            std::cout << "[Image Loader] -> bg.png loaded\n";
         }
     #endif
 }
@@ -236,7 +254,7 @@ int main() {
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
     CreateSDLWindow();
 
-    LoadFonts();
+    LoadAssets();
 
     //The initial state
     RenderMainMenu();
