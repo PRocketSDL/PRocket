@@ -30,14 +30,17 @@ void WriteRMAP()
     }
     
     char ElemCount[STR_SIZE];
+    char ResultPath[STR_SIZE];
     
     #ifdef DEBUG_RMAP_FILE
         std::cout << "[Rmap File Debug] -> Write\n";
         std::cout << "[Rmap File Debug] -> Element count: " << nr_elem << "\n";
     #endif
+
+    //Auto-append the file extension to the path only once
+    sprintf(ResultPath, "%s%s", rmap_o, ".rmap");
     
     //Write the element count to be parsed latter by ReadRMAP()
-    printf(ElemCount, "%d", nr_elem);
     rmapStruct["Main"]["TotalElemCount"] = nr_elem;
     
     for(int i = 0; i < nr_elem; i++)
@@ -55,7 +58,7 @@ void WriteRMAP()
             std::cout << "Type num: " << E[i].ELtype << " | " << "XPos: " << E[i].x << " | " << "YPos: " << E[i].y << "\n";
         #endif
     }
-    init::write_ini(rmapStruct, rmap_o);
+    init::write_ini(rmapStruct, ResultPath);
     #ifdef DEBUG_RMAP_FILE
         std::cout << "[Rmap File Debug] -> File - " << rmap_o << " updated\n";
     #endif
