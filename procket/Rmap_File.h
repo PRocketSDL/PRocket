@@ -60,7 +60,7 @@ void WriteRMAP()
     }
     init::write_ini(rmapStruct, ResultPath);
     #ifdef DEBUG_RMAP_FILE
-        std::cout << "[Rmap File Debug] -> File - " << rmap_o << " updated\n";
+        std::cout << "[Rmap File Debug] -> File - " << ResultPath << " updated\n";
     #endif
 }
 
@@ -83,6 +83,8 @@ void ReadRMAP()
     int Diam;
     int Dm;
     int Temp;
+    
+    //Something is fucked up here
     const auto& MainHeader = rmapStrIn.at("Main");
     MainHeader.at("TotalElemCount").get_to(InElemCount);
     char ElemSect[STR_SIZE];
@@ -112,4 +114,3 @@ void ReadRMAP()
     
     RenderMapPage();
 }
-    
