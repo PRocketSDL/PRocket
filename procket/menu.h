@@ -21,7 +21,7 @@ SDL_Event event; //For the mouse events
 SDL_Surface* TextSurface; //variabila temporara. 
                           
 SDL_Texture* title;
-SDL_Texture* open;
+SDL_Texture* MenuOpen;
 SDL_Texture* create;
 SDL_Texture* sett;
 SDL_Texture* exitbtn;
@@ -43,3 +43,6 @@ SDL_Surface* image;
 SDL_Texture* image_texture;
 SDL_Rect rimage;
 
+TTF_Font *menuFont;
+TTF_Font *titleFont;
+TTF_Font *rocketFont;
