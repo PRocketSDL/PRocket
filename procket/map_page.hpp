@@ -535,8 +535,6 @@ void RenderMapPage()
   lines[0].y = 30;
   lines[0].x2 = 30;
   lines[0].y2 = 30;
-  //IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
-  image = IMG_Load("bg.png");
   image_texture = SDL_CreateTextureFromSurface(Renderer, image);
   SDL_FreeSurface(image);
   rimage.x = 0;
@@ -545,8 +543,7 @@ void RenderMapPage()
   rimage.h = WINDOW_HEIGHT/10;
 
   SDL_RenderSetScale(Renderer, 10, 10);
-   while(IsPollingEventM()){
-      Render();
-   }
-   //IMG_Quit();
+  while(IsPollingEventM()){
+    Render();
+  }
 }
