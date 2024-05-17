@@ -10,5 +10,5 @@
 
 void RenderSettingsPage()
 {
-    CreateText("Settings placeholder", WINDOW_WIDTH/3, WINDOW_HEIGHT/3, OPT_MENU_FONT, 70, title, rtitle);
+    CreateText("Settings placeholder", WINDOW_WIDTH/3, WINDOW_HEIGHT/3, menuFont, 70, title, rtitle);
 }
