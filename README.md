@@ -1,4 +1,4 @@
-## PRocket
+## RocketSIM
 
 ## *Ce ar trebui sa faca programul?*
 
@@ -10,10 +10,10 @@ Fiecare pagina(meniu, programul principal, setari, etc.) va avea un header file,
 
 ## *Compilarea programului (Linux)*
 
-sudo g++ -Wall -lSDL2 -lSDL2_ttf "fisierul principal" -std=c++20 -o PRocket
+sudo g++ -Wall -lSDL2 -lSDL2_ttf "fisierul principal" -std=c++20 -o RocketSIM
 
--std=c++20 pt noua biblioteca de procesare ini
+-std=c++20 pentru biblioteca de procesare ini
 
 ## *Compilarea programului (Windows)*
 
-g++ menu.cpp -Iext_deps -Lext_deps/lib -lSDL2 -lSDL2_ttf -lcomdlg32 -std=c++20 -o PRocket
+g++ menu.cpp -Iext_deps -Lext_deps/lib -lSDL2 -lSDL2_ttf -lcomdlg32 -std=c++20 -o RocketSIM
