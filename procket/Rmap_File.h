@@ -84,7 +84,6 @@ void ReadRMAP()
     int Dm;
     int Temp;
     
-    //Something is fucked up here
     const auto& MainHeader = rmapStrIn.at("Main");
     MainHeader.at("TotalElemCount").get_to(InElemCount);
     char ElemSect[STR_SIZE];
