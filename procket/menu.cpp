@@ -6,7 +6,7 @@
 #define DEBUG_MAP_PAGE
 #define DEBUG_CONFIG
 #define DEBUG_ASSETS
-//#define STUPID_SPAM
+//#define TEMP_DEBUG
 
 
 
@@ -228,7 +228,7 @@ void RenderText() {
 
 
     SDL_RenderCopy(Renderer, title, NULL, &rtitle);
-    #ifdef STUPID_SPAM
+    #ifdef TEMP_DEBUG
     std::cout<< "Render copy: "<<WindowEvent.type<<std::endl; //Too much spam lmao
     #endif
     if(opt==1)  SDL_RenderCopy(Renderer, hopen, NULL, &ropen);else SDL_RenderCopy(Renderer, MenuOpen, NULL, &ropen);    
